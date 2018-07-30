@@ -13,6 +13,7 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(annotate:(NSString *)image64
                     text:(NSString *)text
+                    config:(NSDictionary *)config
                    resolver:(RCTPromiseResolveBlock)resolve
                    rejecter:(RCTPromiseRejectBlock)reject)
 {

@@ -21,11 +21,34 @@ public class RNImageAnnotationModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void annotate(String image64, String text, final Promise promise) {
+  public void annotate(String image64, String text, final ReadableMap config, final Promise promise) {
+    String output = image64;
+    try {
+      byte[] decodedString = Base64.decode(image64, Base64.DEFAULT);
+      Bitmap originalBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+      Bitmap newBitmap = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(newBitmap);
+
+      Paint paint = new Paint();
+      paint.setColor(Color.WHITE); // Text Color
+      paint.setTextSize(30); // Text Size
+      paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)); // Text Overlapping Pattern
+      paint.setShadowLayer(3,0,2, Color.BLACK);
+
+      canvas.drawBitmap(originalBitmap, 0, 0, paint);
+      canvas.drawText(text, 10, 30, paint);
 
 
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      newBitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream);
+      byte[] byteArray = byteArrayOutputStream .toByteArray();
+      output = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
-    promise.resolve("okeydokey");
+    } catch (Error error){
+      Log.e("RNImageAnnotation", "Unable to annotate image, "+error.getLocalizedMessage());
+    }
 
+    promise.resolve(output);
   }
 }
